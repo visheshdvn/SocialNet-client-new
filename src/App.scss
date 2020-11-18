@@ -1,0 +1,18 @@
+$theme-colors: (
+    "info": teal,
+    "danger": tomato,
+    "primary": #40a3ff,
+);
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 10px;
+}
+
+
+@import "~bootstrap/scss/bootstrap";
+@import "custom";
