@@ -1,9 +1,38 @@
-import React from 'react'
+import React, {useState} from 'react'
 import './Register.scss'
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
 import image from '../../images/register.jpg'
 
-const Register = () => {
+import {connect} from 'react-redux'
+import {setAlert} from '../../actions/alert'
+import {register} from '../../actions/auth'
+import propTypes from 'prop-types'
+
+const Register = ({setAlert, register, isAuthenticated}) => {
+  const [ formData, setFormData ] = useState({
+    name: '',
+    email: '',
+    password: '',
+    password2: ''
+  });
+
+  const {name, email, password, password2} = formData
+
+  const onChange = e => setFormData({...formData, [e.target.name]: e.target.value})
+
+    const onSubmit = async e => {
+        e.preventDefault();
+        if (password !== password2) {
+            setAlert('Passwords not Match', 'danger');
+        } else {
+            register({name, email, password});
+        }
+    }
+
+    if(isAuthenticated) {
+        return <Redirect to="/dashboard" />
+    }
+
     return (
         <div className="parent">
             <div className="container">
@@ -15,15 +44,53 @@ const Register = () => {
           <h4 className="title text-center mt-4 text-danger">
             Login into account
           </h4>
-          <form className="form-box px-3">
-            <div className="form-input forRegister text-danger">
-              <span><i className="fa fa-envelope-o"></i></span>
-              <input type="email" name="" placeholder="Email Address" required />
+          <form className="form-box px-3" onSubmit={e => onSubmit(e)}>
+            <div className="form-input forRegister">
+              {/* <span><i className="fa fa-envelope-o"></i></span> */}
+              <input 
+                type="text" 
+                placeholder="Name" 
+                name="name" 
+                value={name}
+                onChange={e => onChange(e)}
+                required 
+              />
             </div>
 
-            <div className="form-input forRegister text-danger">
+            <div className="form-input forRegister">
+              <span><i className="fa fa-envelope-o"></i></span>
+              <input 
+                type="email" 
+                placeholder="Email Address" 
+                name="email"
+                value={email}
+                onChange={e => onChange(e)} 
+                required 
+              />
+            </div>
+
+            <div className="form-input forRegister">
               <span><i className="fa fa-key"></i></span>
-              <input type="password" name="" placeholder="Password" required />
+              <input 
+                type="password" 
+                placeholder="Confirm Password" 
+                name="password2" 
+                value={password2} 
+                onChange={e => onChange(e)}
+                required 
+              />
+            </div>
+
+            <div className="form-input forRegister">
+              <span><i className="fa fa-key"></i></span>
+              <input 
+                type="password" 
+                placeholder="Password" 
+                name="password" 
+                value={password} 
+                onChange={e => onChange(e)}
+                required 
+              />
             </div>
 
             <div className="mb-3" style={{opacity: "0"}}>
@@ -86,4 +153,14 @@ const Register = () => {
     )
 }
 
-export default Register
+Register.propTypes = {
+  setAlert: propTypes.func.isRequired,
+  register: propTypes.func.isRequired,
+  isAuthenticated: propTypes.bool
+}
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+})
+
+export default connect(mapStateToProps, { setAlert, register })(Register)

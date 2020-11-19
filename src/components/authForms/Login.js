@@ -1,9 +1,30 @@
 import React, { useState } from 'react'
+import {Link, Redirect} from 'react-router-dom'
 import './Login.scss'
-import {Link} from 'react-router-dom'
 import image from '../../images/img.jpg'
+import propTypes from 'prop-types'
+import {connect} from 'react-redux';
+import {login} from '../../actions/auth'
 
-const Login = () => {
+
+const Login = ({login, isAuthenticated}) => {
+  const [formData, setFormData] =  useState({
+    email: '',
+    password: ''
+  })
+
+  const {email, password} = formData
+
+  const onChange = e => setFormData({...formData, [e.target.name]: e.target.value})
+
+  const onSubmit = async e => {
+    e.preventDefault();
+        login(email, password)
+    }
+
+  if (isAuthenticated) {
+      return <Redirect to="/home" />
+  }
 
     return (
         <div className="parent">
@@ -16,15 +37,29 @@ const Login = () => {
           <h4 className="title text-center mt-4 text-primary">
             Login into account
           </h4>
-          <form className="form-box px-3">
+          <form className="form-box px-3" onSubmit={e => onSubmit(e)}>
+
             <div className="form-input forLogin text-primary">
               <span><i className="fa fa-envelope-o"></i></span>
-              <input type="email" name="" placeholder="Email Address" required />
+              <input
+                type="email" 
+                placeholder="Email Address" 
+                name="email" 
+                value={email}
+                onChange={e => onChange(e)}
+                required />
             </div>
 
             <div className="form-input forLogin text-primary">
               <span><i className="fa fa-key"></i></span>
-              <input type="password" name="" placeholder="Password" required />
+              <input 
+                type="password" 
+                placeholder="Password" 
+                name="password" 
+                minLength="6"
+                value={password}
+                onChange={e => onChange(e)}
+              />
             </div>
 
             <div className="mb-3">
@@ -35,7 +70,7 @@ const Login = () => {
             </div>
 
             <div className="mb-3">
-              <button type="submit" className="btn btn-block text-uppercase bg-primary forLogin">
+              <button type="submit" className="btn btn-block text-uppercase bg-primary forLogin" value="Login">
                 Login
               </button>
             </div>
@@ -87,4 +122,13 @@ const Login = () => {
     )
 }
 
-export default Login
+Login.propTypes = {
+  login: propTypes.func.isRequired,
+  isAuthenticated: propTypes.bool
+}
+
+const mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+})
+
+export default connect(mapStateToProps, {login})(Login)
